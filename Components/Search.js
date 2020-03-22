@@ -15,6 +15,7 @@ class Search extends React.Component {
             this.page = 0,
             this.totalPages = 0
     }
+    
     _loadFilms() {
         if (this.searchedText.length > 0) {
             this.setState({ _isLoading: true })
