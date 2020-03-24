@@ -1,9 +1,9 @@
 import React from 'react'
-import { StyleSheet, View, Text, ImageBackground, ScrollView, ActivityIndicator } from 'react-native'
-import { getImageApi } from '../API/TMDBApi'
-import { getFilmDetailApi } from '../API/TMDBApi'
+import { StyleSheet, View, Text, ImageBackground, ScrollView, ActivityIndicator, Button, TouchableOpacity, Image } from 'react-native'
+import { getImageApi, getFilmDetailApi } from '../API/TMDBApi'
 import moment from 'moment'
 import numeral from 'numeral'
+import { connect } from 'react-redux'
 
 class FilmDetail extends React.Component {
 
@@ -62,7 +62,6 @@ class FilmDetail extends React.Component {
     _displayDetail() {
         if (this.state.film != undefined) {
             const film = this.state.film;
-            console.log('done')
             return (
                 <ScrollView style={styles.content_container}>
                     <View style={styles.description_container}>
@@ -83,6 +82,29 @@ class FilmDetail extends React.Component {
         }
     }
 
+    _toggleFavorite() {
+        console.log('TOGGLE')
+        const action = { type: 'TOGGLE_FAVORITE', value: this.state.film }
+        this.props.dispatch(action)
+    }
+
+    componentDidUpdate() {
+        console.log(this.props.favoriteFilms)
+    }
+
+    _displayFavoriteImg(film) {
+        var sourceImage = require('../Images/ic_non_favorite.png')
+        if (this.props.favoriteFilms.findIndex(item => item.id === film.id) !== -1) {
+            var sourceImage = require('../Images/ic_favorite.png')
+        }
+        return (
+            <Image
+            source={sourceImage}
+            style={styles.favorite_image}
+            />
+        )
+    }
+
     render() {
         const film = this.props.navigation.getParam('film')
         return (
@@ -93,6 +115,10 @@ class FilmDetail extends React.Component {
                     imageStyle={{ opacity: 0.3 }}>
                     <View style={styles.header_container}>
                         <Text style={styles.title_text}>{film.title} </Text>
+                        <TouchableOpacity style={styles.favorite_container} onPress={() => this._toggleFavorite()}>
+                            {/* <Image source={ {uri: '../Images/ic_favorite.png'} }/> */}
+                            {this._displayFavoriteImg(film)}
+                        </TouchableOpacity> 
                     </View>
                     {this._displayDetail()}
                     {this._displayLoading()}
@@ -119,12 +145,12 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
     },
     content_container: {
-        flex: 6,
+        flex: 1,
         margin: 5,
         marginTop: 0
     },
     header_container: {
-        flex: 0.1,
+        flex: 0.2,
         alignItems: 'center'
     },
     title_text: {
@@ -184,7 +210,19 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    favorite_container: {
+        alignItems: 'center'
+    },
+    favorite_image: {
+        width: 40,
+        height: 40
     }
 })
 
-export default FilmDetail
+const mapStateToProps = (state) => {
+    return {
+        favoriteFilms: state.favoriteFilms
+    }
+}
+export default connect(mapStateToProps)(FilmDetail)
