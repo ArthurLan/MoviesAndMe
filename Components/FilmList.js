@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 class FilmList extends React.Component {
     
     _displayDetailForFilm = (film) => {
-        // console.log('Display film with id ' + idFilm)
         this.props.navigation.navigate('FilmDetail', { film: film })
     }
 

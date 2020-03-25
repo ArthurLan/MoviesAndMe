@@ -11,7 +11,6 @@ function toggleFavorite(state = initialState, action) {
                     favoriteFilms: state.favoriteFilms.filter( (item, index) => index != favoriteFilmIndex)
                 }
             } else {
-                console.log('Reducer')
                 nextState = {
                     ...state,
                     favoriteFilms: [ ...state.favoriteFilms, action.value ]

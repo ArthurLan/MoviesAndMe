@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 class Favorite extends React.Component {
 
     _displayDetailForFilm = (film) => {
-        // console.log('Display film with id ' + idFilm)
         this.props.navigation.navigate('FilmDetail', { film: film })
     }
 
@@ -15,7 +14,6 @@ class Favorite extends React.Component {
     }
 
     render() {
-        console.log("RENDER")
         return (
             <View style={styles.main_container}>
                 <FilmList

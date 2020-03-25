@@ -30,7 +30,6 @@ class Search extends React.Component {
                     _isLoading: false
                 })
             })
-            // console.log(JSON.stringify(this.state._films))
         }
 
     }

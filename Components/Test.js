@@ -1,17 +1,35 @@
 // Components/Test.js
 
 import React from 'react'
-import { StyleSheet, View, Platform } from 'react-native'
+import { StyleSheet, View, Platform, Animated } from 'react-native'
 import HelloWorld from './HelloWorld'
 
 class Test extends React.Component {
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      topPosition: new Animated.Value(0)
+    }
+  }
+
+  componentDidMount() {
+    Animated.spring(
+      this.state.topPosition,
+      {
+        toValue: 100,
+        speed: 2,
+        bounciness:15
+      }
+    ).start()
+  }
+
   render() {
     return (
       <View style={styles.main_container}>
-        <View style={styles.subview_container}>
+        <Animated.View style={[styles.subview_container, {top: this.state.topPosition}]}>
             <HelloWorld />
-        </View>
+        </Animated.View>
       </View>
     )
   }
