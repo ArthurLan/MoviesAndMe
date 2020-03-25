@@ -1,11 +1,27 @@
 import React from 'react'
-import { StyleSheet, View, Text, ImageBackground, ScrollView, ActivityIndicator, Button, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, View, Text, ImageBackground, ScrollView, ActivityIndicator, Share, TouchableOpacity, Image, Platform } from 'react-native'
 import { getImageApi, getFilmDetailApi } from '../API/TMDBApi'
 import moment from 'moment'
 import numeral from 'numeral'
 import { connect } from 'react-redux'
+import styles from './Styles/FilmDetailsStyles'
 
 class FilmDetail extends React.Component {
+
+    static navigationOptions = ({ navigation }) => {
+        const { params } = navigation.state
+        if (params.film != undefined && Platform.OS === 'ios') {
+            return {
+                headerRight: <TouchableOpacity
+                                style={styles.share_touchable_headerrightbutton}
+                                onPress={() => params.shareFilm()}>
+                                <Image
+                                style={styles.share_image}
+                                source={require('../Images/ic_share.png')} />
+                            </TouchableOpacity>
+            }
+        }
+    }
 
     constructor(props) {
         super(props)
@@ -13,15 +29,52 @@ class FilmDetail extends React.Component {
             film: undefined,
             _isLoading: true
         }
+        this._shareFilm = this._shareFilm.bind(this)
     }
 
-    componentDidMount() {
-        getFilmDetailApi(this.props.navigation.getParam('film').id).then(data => {
-            this.setState({
-                film: data,
-                _isLoading: false
-            })
+    _updateNavigationParams() {
+        this.props.navigation.setParams({
+          shareFilm: this._shareFilm,
+          film: this.state.film
         })
+      }
+
+    componentDidMount() {
+        const favoriteFilmIndex = this.props.favoriteFilms.findIndex(item => item.id === this.props.navigation.getParam('film').id)
+        if (favoriteFilmIndex !== -1) { 
+          this.setState({
+            film: this.props.favoritesFilm[favoriteFilmIndex]
+          }, () => { this._updateNavigationParams() })
+          return
+        }
+        
+        this.setState({ isLoading: true })
+        getFilmDetailApi(this.props.navigation.getParam('film').id).then(data => {
+          this.setState({
+            film: data,
+            _isLoading: false
+          }, () => { this._updateNavigationParams() })
+        })
+     }
+
+    _shareFilm() {
+        const { film } = this.state
+        Share.share({ title: film.title, message: film.overview })
+    }
+
+    _displayFloatingActionButton() {
+        const { film } = this.state
+        if (film != undefined && Platform.OS === 'android') {
+            return(
+                <TouchableOpacity
+                    style={styles.share_button}
+                    onPress={() => this._shareFilm()}>
+                    <Image
+                    style={styles.share_image}
+                    source={require('../Images/ic_share.png')}/>
+                </TouchableOpacity>
+            )
+        }
     }
 
     _displayLoading() {
@@ -122,6 +175,7 @@ class FilmDetail extends React.Component {
                     </View>
                     {this._displayDetail()}
                     {this._displayLoading()}
+                    {this._displayFloatingActionButton()}
                 </ImageBackground>
             </View>
 
@@ -130,95 +184,6 @@ class FilmDetail extends React.Component {
 
     }
 }
-
-const styles = StyleSheet.create({
-    main_container: {
-        // flexDirection: 'row',
-        flex: 1,
-        // backgroundColor: "#0FFFFF",
-
-    },
-    img_container: {
-        flex: 1,
-        width: null,
-        height: null,
-        resizeMode: 'cover',
-    },
-    content_container: {
-        flex: 1,
-        margin: 5,
-        marginTop: 0
-    },
-    header_container: {
-        flex: 0.2,
-        alignItems: 'center'
-    },
-    title_text: {
-        fontSize: 30,
-        fontWeight: 'bold',
-        flex: 1,
-        flexWrap: 'wrap',
-        // paddingRight: 5,
-        justifyContent: 'center',
-        alignContent: 'center',
-        alignItems: 'center',
-        marginTop: 10
-    },
-    vote_text: {
-        fontWeight: 'bold',
-        fontSize: 30,
-        color: '#666666'
-    },
-    description_container: {
-        flex: 7,
-        // marginTop: 50,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 6,
-        },
-        shadowOpacity: 0.37,
-        shadowRadius: 7.49,
-        elevation: 12,
-        margin: 10,
-    },
-    description_text: {
-        fontSize: 20,
-        color: '#000000',
-        textAlign: 'justify',
-        backgroundColor: 'rgba(256, 256, 256, 0.8)',
-        padding: 10
-    },
-    info_text: {
-        fontSize: 15,
-        color: '#000000',
-        backgroundColor: 'rgba(256, 256, 256, 0.8)',
-    },
-    date: {
-        margin: 5,
-        flex: 1
-    },
-    date_text: {
-        fontSize: 12,
-        textAlign: "right"
-    },
-    loading_container: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 100,
-        bottom: 0,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    favorite_container: {
-        alignItems: 'center'
-    },
-    favorite_image: {
-        width: 40,
-        height: 40
-    }
-})
 
 const mapStateToProps = (state) => {
     return {
