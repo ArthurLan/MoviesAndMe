@@ -2,6 +2,7 @@ import React from 'react'
 import { View, Text, StyleSheet, FlatList } from 'react-native'
 import FilmList from './FilmList'
 import { connect } from 'react-redux'
+import Avatar from './Avatar'
 
 class Favorite extends React.Component {
 
@@ -16,6 +17,9 @@ class Favorite extends React.Component {
     render() {
         return (
             <View style={styles.main_container}>
+                <View style={styles.avatar_container}>
+                    <Avatar/>
+                </View>
                 <FilmList
                     films={this.props.favoriteFilms}
                     navigation={this.props.navigation}
@@ -28,15 +32,19 @@ class Favorite extends React.Component {
 
 const styles = StyleSheet.create({
     main_container: {
-        marginTop: 30,
+        // marginTop: 30,
         flex: 1
+    },
+    avatar_container: {
+        alignItems: 'center'
     }
 });
 
 // export default Search
 const mapStateToProps = (state) => {
     return {
-        favoriteFilms: state.favoriteFilms
+            favoriteFilms: state.toggleFavorite.favoriteFilms
+
     }
 }
 export default connect(mapStateToProps)(Favorite)

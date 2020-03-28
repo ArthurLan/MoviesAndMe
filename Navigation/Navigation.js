@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import Search from '../Components/Search'
 import FilmDetail from '../Components/FilmDetail'
 import Favorite from '../Components/Favorite'
+import Profile from '../Components/Profile'
 
 import Test from '../Components/Test'
 
@@ -41,9 +42,6 @@ const FavoriteStackNavigator = createStackNavigator({
 })
 
 const MoviesTabNavigator = createBottomTabNavigator({
-    Test: {
-        screen: Test
-      },
     Search:{
         screen: SearchStackNavigator,
         navigationOptions: {
@@ -67,6 +65,18 @@ const MoviesTabNavigator = createBottomTabNavigator({
                 )
             }
         } 
+    },
+    Profile: {
+        screen: Profile,
+        navigationOptions:  {
+            tabBarIcon: () => {
+                return (
+                    <Image
+                    source={require('../Images/ic_profile.png')}
+                    style={styles.icon}/>
+                )
+            }
+        }  
     }}, {
     tabBarOptions: {
         showLabel: false,

@@ -5,6 +5,8 @@ import moment from 'moment'
 import numeral from 'numeral'
 import { connect } from 'react-redux'
 import styles from './Styles/FilmDetailsStyles'
+import FadeInOpacity from '../Animations/OpacityIn'
+import EnlargeShrink from '../Animations/EnlargeShrink'
 
 class FilmDetail extends React.Component {
 
@@ -12,13 +14,13 @@ class FilmDetail extends React.Component {
         const { params } = navigation.state
         if (params.film != undefined && Platform.OS === 'ios') {
             return {
-                headerRight: <TouchableOpacity
-                                style={styles.share_touchable_headerrightbutton}
-                                onPress={() => params.shareFilm()}>
-                                <Image
-                                style={styles.share_image}
-                                source={require('../Images/ic_share.png')} />
-                            </TouchableOpacity>
+                headerRight: () => <TouchableOpacity
+                    style={styles.share_touchable_headerrightbutton}
+                    onPress={() => params.shareFilm()}>
+                    <Image
+                        style={styles.share_image}
+                        source={require('../Images/ic_share.png')} />
+                </TouchableOpacity>
             }
         }
     }
@@ -34,28 +36,29 @@ class FilmDetail extends React.Component {
 
     _updateNavigationParams() {
         this.props.navigation.setParams({
-          shareFilm: this._shareFilm,
-          film: this.state.film
+            shareFilm: this._shareFilm,
+            film: this.state.film
         })
-      }
+    }
 
     componentDidMount() {
         const favoriteFilmIndex = this.props.favoriteFilms.findIndex(item => item.id === this.props.navigation.getParam('film').id)
-        if (favoriteFilmIndex !== -1) { 
-          this.setState({
-            film: this.props.favoritesFilm[favoriteFilmIndex]
-          }, () => { this._updateNavigationParams() })
-          return
+        if (favoriteFilmIndex !== -1) {
+            this.setState({
+                film: this.props.favoriteFilms[favoriteFilmIndex],
+                _isLoading: false
+            }, () => { this._updateNavigationParams() })
+            return
         }
-        
+
         this.setState({ isLoading: true })
         getFilmDetailApi(this.props.navigation.getParam('film').id).then(data => {
-          this.setState({
-            film: data,
-            _isLoading: false
-          }, () => { this._updateNavigationParams() })
+            this.setState({
+                film: data,
+                _isLoading: false
+            }, () => { this._updateNavigationParams() })
         })
-     }
+    }
 
     _shareFilm() {
         const { film } = this.state
@@ -65,13 +68,13 @@ class FilmDetail extends React.Component {
     _displayFloatingActionButton() {
         const { film } = this.state
         if (film != undefined && Platform.OS === 'android') {
-            return(
+            return (
                 <TouchableOpacity
                     style={styles.share_button}
                     onPress={() => this._shareFilm()}>
                     <Image
-                    style={styles.share_image}
-                    source={require('../Images/ic_share.png')}/>
+                        style={styles.share_image}
+                        source={require('../Images/ic_share.png')} />
                 </TouchableOpacity>
             )
         }
@@ -116,20 +119,23 @@ class FilmDetail extends React.Component {
         if (this.state.film != undefined) {
             const film = this.state.film;
             return (
-                <ScrollView style={styles.content_container}>
-                    <View style={styles.description_container}>
-                        <Text style={styles.description_text}>{film.overview}</Text>
-                        <Text style={styles.info_text}>Sorti le : {moment(film.release_date).format('DD/MM/YY')}</Text>
-                        <Text style={styles.info_text}>Note : {film.vote_average}/10</Text>
-                        <Text style={styles.info_text}>Nombre de votes : {film.vote_count}</Text>
-                        <Text style={styles.info_text}>Budget : {numeral(film.budget).format('0,0$')}</Text>
-                        <Text style={styles.info_text}>Genre : {this._displayGenre(film)}</Text>
-                        {/* fonction map beaucoup plus propre :
-                        film.genres.map(function(genre){
-                        return genre.name;
-                        }).join(" / ")} */}
-                        <Text style={styles.info_text}>Companie(s) : {this._displayCompany(film)}</Text>
-                    </View>
+                <ScrollView> 
+                    {/* style={styles.content_container} */}
+                    <FadeInOpacity>
+                        <View style={styles.description_container}>
+                            <Text style={styles.description_text}>{film.overview}</Text>
+                            <Text style={styles.info_text}>Sorti le : {moment(film.release_date).format('DD/MM/YY')}</Text>
+                            <Text style={styles.info_text}>Note : {film.vote_average}/10</Text>
+                            <Text style={styles.info_text}>Nombre de votes : {film.vote_count}</Text>
+                            <Text style={styles.info_text}>Budget : {numeral(film.budget).format('0,0$')}</Text>
+                            <Text style={styles.info_text}>Genre : {this._displayGenre(film)}</Text>
+                            {/* fonction map beaucoup plus propre :
+                            film.genres.map(function(genre){
+                            return genre.name;
+                            }).join(" / ")} */}
+                            <Text style={styles.info_text}>Companie(s) : {this._displayCompany(film)}</Text>
+                        </View>
+                    </FadeInOpacity>
                 </ScrollView>
             )
         }
@@ -143,14 +149,19 @@ class FilmDetail extends React.Component {
 
     _displayFavoriteImg(film) {
         var sourceImage = require('../Images/ic_non_favorite.png')
+        var shouldEnlarge = false
         if (this.props.favoriteFilms.findIndex(item => item.id === film.id) !== -1) {
-            var sourceImage = require('../Images/ic_favorite.png')
+            sourceImage = require('../Images/ic_favorite.png')
+            shouldEnlarge = true
         }
         return (
-            <Image
-            source={sourceImage}
-            style={styles.favorite_image}
-            />
+            <EnlargeShrink
+                shouldEnlarge={shouldEnlarge}>
+                <Image
+                    source={sourceImage}
+                    style={styles.favorite_image}
+                />
+            </EnlargeShrink>
         )
     }
 
@@ -167,9 +178,11 @@ class FilmDetail extends React.Component {
                         <TouchableOpacity style={styles.favorite_container} onPress={() => this._toggleFavorite()}>
                             {/* <Image source={ {uri: '../Images/ic_favorite.png'} }/> */}
                             {this._displayFavoriteImg(film)}
-                        </TouchableOpacity> 
+                        </TouchableOpacity>
                     </View>
-                    {this._displayDetail()}
+                    <View style={styles.content_container}>
+                        {this._displayDetail()}
+                    </View>
                     {this._displayLoading()}
                     {this._displayFloatingActionButton()}
                 </ImageBackground>
@@ -183,7 +196,8 @@ class FilmDetail extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        favoriteFilms: state.favoriteFilms
+            favoriteFilms: state.toggleFavorite.favoriteFilms
+
     }
 }
 export default connect(mapStateToProps)(FilmDetail)

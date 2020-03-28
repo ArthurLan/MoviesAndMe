@@ -14,12 +14,12 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
     },
     content_container: {
-        flex: 1,
+        flex: 3,
         margin: 5,
         marginTop: 0
     },
     header_container: {
-        flex: 0.2,
+        flex: 1,
         alignItems: 'center'
     },
     title_text: {
@@ -32,11 +32,6 @@ const styles = StyleSheet.create({
         alignContent: 'center',
         alignItems: 'center',
         marginTop: 10
-    },
-    vote_text: {
-        fontWeight: 'bold',
-        fontSize: 30,
-        color: '#666666'
     },
     description_container: {
         flex: 7,
@@ -63,14 +58,6 @@ const styles = StyleSheet.create({
         color: '#000000',
         backgroundColor: 'rgba(256, 256, 256, 0.8)',
     },
-    date: {
-        margin: 5,
-        flex: 1
-    },
-    date_text: {
-        fontSize: 12,
-        textAlign: "right"
-    },
     loading_container: {
         position: 'absolute',
         left: 0,
@@ -81,11 +68,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     favorite_container: {
+        flex: 1,
         alignItems: 'center'
     },
     favorite_image: {
-        width: 40,
-        height: 40
+        flex: 1,
+        width: null,
+        height: null
     },
     share_button: {
         position: 'absolute',
